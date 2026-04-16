@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleanwave_app
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=production
+    command: ["npm", "run", "preview"]
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleanwave_test
+    environment:
+      - NODE_ENV=test
+    entrypoint: ["/bin/sh"]
+    command: ["./run_tests.sh"]
+
+  test-browser:
+    build:
+      context: .
+      dockerfile: Dockerfile.browser-test
+    container_name: cleanwave_test_browser
+    environment:
+      - NODE_ENV=test
+    command: ["bash", "-c", "npm run preview & sleep 3 && npx playwright test"]

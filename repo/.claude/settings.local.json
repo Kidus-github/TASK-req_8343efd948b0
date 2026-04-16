@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npm ci *)",
+      "Bash(npx vite *)",
+      "Bash(npx vitest *)",
+      "Bash(npm run *)",
+      "Bash(docker info *)",
+      "Bash(chmod +x run_test.sh)",
+      "Bash(docker compose *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(grep -rn '\\\\\\\\x' src/ README.md ASSUMPTIONS.md)",
+      "Bash(node scripts/prepare-face-models.mjs)"
+    ]
+  }
+}
