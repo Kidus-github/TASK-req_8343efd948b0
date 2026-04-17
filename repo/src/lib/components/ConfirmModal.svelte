@@ -65,6 +65,7 @@
   {@const opts = $activeModal.opts}
   <div
     class="modal-backdrop"
+    style="z-index: 300;"
     role="button"
     tabindex="-1"
     aria-label="Close dialog"
@@ -91,6 +92,7 @@
   {@const opts = $activeModal.opts}
   <div
     class="modal-backdrop"
+    style="z-index: 300;"
     role="button"
     tabindex="-1"
     aria-label="Close dialog"
@@ -140,6 +142,7 @@
   {@const opts = $activeModal.opts}
   <div
     class="modal-backdrop"
+    style="z-index: 300;"
     role="button"
     tabindex="-1"
     aria-label="Close dialog"

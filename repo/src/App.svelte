@@ -37,6 +37,17 @@
     await startWorkerPool();
   });
 
+  // Keep gateMode in sync when the profile transitions to null at runtime
+  // (e.g. after "Reset device profile" wipes local data). Without this the
+  // gate stays on "Unlock" after a reset, which doesn't match the post-reset
+  // state where no profile exists anymore.
+  $: if (!checking && !$profile) {
+    void hasProfile().then((has) => {
+      const next = has ? 'unlock' : 'create';
+      if (gateMode !== next) gateMode = next;
+    });
+  }
+
   onDestroy(() => stopWorkerPool());
 
   // When profile becomes available, restore last-opened project if any.

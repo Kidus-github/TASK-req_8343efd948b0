@@ -51,6 +51,17 @@ export async function listCartItems(cartId: string): Promise<ExportCartItem[]> {
   return allByIndex<ExportCartItem>('exportCartItems', 'by_cart', cartId);
 }
 
+/**
+ * Items across every cart of a project. Useful for the Export panel, which
+ * needs to keep showing queued/rendering/completed items after the cart that
+ * owned them has been confirmed and replaced by a new draft.
+ */
+export async function listProjectExportItems(projectId: string): Promise<ExportCartItem[]> {
+  const carts = await allByIndex<ExportCart>('exportCarts', 'by_project', projectId);
+  const lists = await Promise.all(carts.map((c) => listCartItems(c.id)));
+  return lists.flat();
+}
+
 export async function addCartItem(
   cartId: string,
   sourceFileId: string,

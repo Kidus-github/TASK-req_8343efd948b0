@@ -20,7 +20,7 @@ test.describe('Attendance camera flow', () => {
     await page.locator('#cw-role').selectOption('operations');
     await page.getByRole('button', { name: /create profile/i }).click();
     // Navigate to attendance.
-    await page.getByText('Attendance').click();
+    await page.getByRole('button', { name: 'Attendance', exact: true }).click();
     // The attendance panel should show the model status (loaded or fallback).
     const modelStatus = page.locator('.pill.success, .pill.warning').first();
     await expect(modelStatus).toBeVisible({ timeout: 15_000 });
@@ -46,7 +46,7 @@ test.describe('Attendance camera flow', () => {
     await page.locator('#cw-passphrase').fill('test-pass-1');
     await page.locator('#cw-role').selectOption('operations');
     await page.getByRole('button', { name: /create profile/i }).click();
-    await page.getByText('Attendance').click();
+    await page.getByRole('button', { name: 'Attendance', exact: true }).click();
     // The "Request camera" button should be present.
     const cameraBtn = page.getByRole('button', { name: /request camera/i });
     await expect(cameraBtn).toBeVisible({ timeout: 10_000 });

@@ -25,7 +25,7 @@ test.describe('CleanWave smoke', () => {
     await page.getByRole('button', { name: /add marker at/i }).click();
     await expect(page.getByRole('cell', { name: /intro cue/i })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Export' }).or(page.locator('.tab', { hasText: 'Export' })).first().click();
+    await page.locator('.tab', { hasText: 'Export' }).click();
     await page.getByRole('button', { name: /add to cart/i }).click();
     await expect(page.getByText(/added to export cart/i)).toBeVisible();
 
@@ -38,11 +38,14 @@ test.describe('CleanWave smoke', () => {
       timeout: 30_000
     });
 
-    await page.getByRole('button', { name: 'Reports' }).or(page.locator('.tab', { hasText: 'Reports' })).first().click();
+    // Workspace tab, not the sidebar nav — both expose an accessible name
+    // "Reports" so target the tab specifically.
+    await page.locator('.tab', { hasText: 'Reports' }).click();
     await expect(page.locator('tr', { hasText: 'Exported' })).toContainText('1');
 
-    await page.getByRole('button', { name: /close/i }).click();
-    await page.getByRole('button', { name: /playlists/i }).click();
+    // Close the project (Workspace has its own Close button in the header row).
+    await page.locator('main').getByRole('button', { name: /^close$/i }).click();
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
     await page.getByPlaceholder(/new playlist name/i).fill('Smoke List');
     await page.getByRole('button', { name: /^create$/i }).click();
     await expect(page.getByRole('heading', { name: 'Smoke List' })).toBeVisible();

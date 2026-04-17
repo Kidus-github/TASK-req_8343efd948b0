@@ -15,7 +15,9 @@ test.describe('Export download flow', () => {
     await expect(page.locator('select').filter({ hasText: 'export-test.wav' })).toBeVisible({ timeout: 10_000 });
 
     await page.locator('.tab', { hasText: 'Export' }).click();
-    await page.locator('select').filter({ hasText: 'WAV' }).first().selectOption('wav');
+    // Target the Format select precisely via its implicit label rather than
+    // a hasText match (filenames containing ".wav" would match first).
+    await page.getByLabel('Format').first().selectOption('wav');
     await page.getByRole('button', { name: /add to cart/i }).click();
     await expect(page.getByText(/added to export cart/i)).toBeVisible();
 
@@ -23,7 +25,10 @@ test.describe('Export download flow', () => {
     await page.getByRole('button', { name: /confirm & render/i }).click();
     await page.getByRole('button', { name: /^confirm$/i }).click();
 
-    const downloadButton = page.getByRole('button', { name: /download/i }).first();
+    // Click the Download button inside the cart drawer. The same button is
+    // also rendered in the main panel's "Completed downloads" card, but the
+    // drawer is what the user is looking at here, so target it explicitly.
+    const downloadButton = page.getByRole('dialog').getByRole('button', { name: /^download$/i });
     await expect(downloadButton).toBeVisible({ timeout: 30_000 });
 
     const downloadPromise = page.waitForEvent('download');

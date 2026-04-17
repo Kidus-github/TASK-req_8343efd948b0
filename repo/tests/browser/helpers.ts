@@ -38,6 +38,34 @@ export function buildWavFixture(filename: string, hz = 440): string {
 }
 
 export async function resetBrowserState(page: Page): Promise<void> {
+  // Force prefs to allow heavy jobs regardless of wall-clock time. The app
+  // defers export renders during quiet hours (22:00–06:00) by default, and
+  // App.svelte re-syncs profile.quietHours into prefs every time the profile
+  // changes — so a one-shot localStorage seed won't stick. Intercept writes
+  // to the prefs key and force allowHeavyJobs back to true on every save.
+  await page.addInitScript(() => {
+    const KEY = 'cleanwave.prefs.v1';
+    const origSet = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key: string, value: string) {
+      if (key === KEY) {
+        try {
+          const parsed = JSON.parse(value);
+          if (parsed && typeof parsed === 'object') {
+            parsed.quietHours = {
+              start: '22:00',
+              end: '06:00',
+              ...(parsed.quietHours ?? {}),
+              allowHeavyJobs: true
+            };
+            value = JSON.stringify(parsed);
+          }
+        } catch {
+          // Leave value untouched on parse error.
+        }
+      }
+      return origSet.call(this, key, value);
+    };
+  });
   await page.goto('/');
   await page.evaluate(async () => {
     const dbs =
@@ -49,6 +77,25 @@ export async function resetBrowserState(page: Page): Promise<void> {
       localStorage.clear();
     } catch {
       // Ignore environments without localStorage access.
+    }
+    try {
+      localStorage.setItem(
+        'cleanwave.prefs.v1',
+        JSON.stringify({
+          theme: 'light',
+          defaultPlaybackSpeed: 1.0,
+          quietHours: { start: '22:00', end: '06:00', allowHeavyJobs: true },
+          uiRole: 'editor',
+          showDisclaimer: false
+        })
+      );
+    } catch {
+      // Ignore storage failures.
+    }
+    try {
+      sessionStorage.clear();
+    } catch {
+      // Ignore environments without sessionStorage access.
     }
   });
   await page.goto('/');

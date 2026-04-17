@@ -7,6 +7,7 @@
     estimateCart,
     getOrCreateCart,
     listCartItems,
+    listProjectExportItems,
     removeCartItem,
     defaultFilename
   } from '$lib/services/exports';
@@ -55,7 +56,10 @@
     files = await listProjectFiles(projectId);
     if (files.length > 0 && !sourceFileId) sourceFileId = files[0].id;
     cart = await getOrCreateCart(projectId);
-    items = await listCartItems(cart.id);
+    // Pull items from every cart for this project so queued/rendering/completed
+    // items from a just-confirmed cart stay visible once a new draft cart is
+    // rotated in for future additions.
+    items = await listProjectExportItems(projectId);
     estimate = await estimateCart(cart.id);
     jobs = await listJobs();
   }
@@ -298,20 +302,15 @@
 </div>
 
 {#if drawerOpen}
-  <div
-    class="modal-backdrop"
-    role="button"
-    tabindex="-1"
-    aria-label="Close export cart"
-    on:click|self={() => (drawerOpen = false)}
-    on:keydown|self={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        drawerOpen = false;
-      }
-    }}
-  >
-    <div class="drawer" role="dialog" aria-modal="true">
+  <!--
+    Drawer overlay. The backdrop is non-interactive (`pointer-events: none`)
+    so clicks on elements underneath still work — the drawer is a side panel
+    that coexists with the rest of the workspace, not a focus-trapping
+    modal. The drawer itself re-enables pointer events so its buttons and
+    table remain clickable.
+  -->
+  <div class="modal-backdrop" style="pointer-events: none;">
+    <div class="drawer" role="dialog" aria-modal="false" style="pointer-events: auto;">
       <div class="row">
         <h3 style="margin: 0;">Export Cart</h3>
         <div class="grow" />

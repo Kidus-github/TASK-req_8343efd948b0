@@ -57,7 +57,8 @@ test.describe('Waveform timeline', () => {
     await page.getByRole('button', { name: /create profile/i }).click();
     await page.getByPlaceholder(/new project name/i).fill('Wave Proj');
     await page.getByRole('button', { name: /^create project$/i }).click();
-    await page.getByRole('row', { name: /wave proj/i }).getByRole('button', { name: /open/i }).click();
+    // Creating a project auto-navigates into the workspace.
+    await expect(page.getByRole('heading', { name: 'Wave Proj' })).toBeVisible();
     // Import.
     const fileInput = page.locator('input[type="file"][accept*=".wav"]').first();
     await fileInput.setInputFiles(fixture);

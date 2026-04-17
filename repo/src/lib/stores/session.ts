@@ -11,7 +11,22 @@ export const profile = writable<DeviceProfile | null>(null);
 export const currentProject = writable<Project | null>(null);
 export const sidebarKey = writable<SidebarKey>('projects');
 export const tabKey = writable<TabKey>('edit');
-export const tabId = writable<string>('tab-' + Math.random().toString(36).slice(2, 8));
+function initialTabId(): string {
+  const fresh = 'tab-' + Math.random().toString(36).slice(2, 8);
+  try {
+    const existing = sessionStorage.getItem('cleanwave.tabId');
+    if (existing) return existing;
+    sessionStorage.setItem('cleanwave.tabId', fresh);
+  } catch {
+    // sessionStorage unavailable (SSR, disabled storage) — fall through.
+  }
+  return fresh;
+}
+
+// Stable per-browser-tab id. sessionStorage survives reload but is isolated
+// per tab, so a reloaded tab re-acquires its own project lock while a truly
+// second tab still gets a distinct id and is correctly treated as concurrent.
+export const tabId = writable<string>(initialTabId());
 export const readOnly = writable<boolean>(false);
 
 export const uiRole = derived(profile, ($p) => ($p?.uiRole ?? 'editor') as UiRole);

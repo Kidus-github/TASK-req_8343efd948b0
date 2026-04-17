@@ -27,7 +27,7 @@ test.describe('Multi-tab lock', () => {
     const ctx1 = await browser.newContext();
     const page1 = await ctx1.newPage();
     await setupProfile(page1);
-    await page1.getByRole('row', { name: /shared proj/i }).getByRole('button', { name: /open/i }).click();
+    // Creating a project auto-opens it; the workspace heading confirms that.
     await expect(page1.getByRole('heading', { name: 'Shared Proj' })).toBeVisible();
 
     // Tab 2: same browser context (shared IndexedDB). Unlock and open same project.
@@ -36,7 +36,17 @@ test.describe('Multi-tab lock', () => {
     // Already unlocked in this context; profile exists so we get the unlock gate.
     await page2.locator('#cw-passphrase').fill('test-pass-1');
     await page2.getByRole('button', { name: /unlock/i }).click();
-    await page2.getByRole('row', { name: /shared proj/i }).getByRole('button', { name: /open/i }).click();
+    // After unlock, page2 may auto-restore the last-opened project (if page1
+    // persisted it quickly enough) or may still be sitting on the projects
+    // list. Handle both paths so the test is deterministic.
+    const openInRow = page2
+      .getByRole('row', { name: /shared proj/i })
+      .getByRole('button', { name: /open/i });
+    try {
+      await openInRow.click({ timeout: 3000 });
+    } catch {
+      // Auto-restored directly into the workspace — nothing to click.
+    }
 
     // Expect either a "read-only" pill, the lock modal, or a toast warning.
     const readOnlyIndicator = page2.getByText(/read-only/i);
