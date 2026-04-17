@@ -1,212 +1,333 @@
 # Test Coverage Audit
 
-## Project Type Detection
+## Scope And Project Type
 
-- Declared project type: `web` in [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:1) and [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:4).
-- Static evidence supports the declaration:
-  - [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:5) and [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:8) define a Vite SPA, not a backend server.
-  - [docker-compose.yml](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/docker-compose.yml:12) runs `npm run preview`.
-  - [src/main.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/src/main.ts:1) mounts a Svelte app; [src/App.svelte](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/src/App.svelte:1) composes UI panels only.
-- Final type used for this audit: `web`.
+- Declared project type: `web`.
+- Evidence:
+  - `README.md:1` declares `<!-- project-type: web -->`.
+  - `README.md:4` declares `**Project Type: web**`.
+  - `README.md:6` states "Fully browser-only, fully offline. No backend, no server-side API endpoints, no server-side authentication."
+  - `package.json` describes a Svelte + TypeScript SPA with Vite, Vitest, and Playwright only.
 
 ## Backend Endpoint Inventory
 
-No backend API endpoints were detected.
+- No backend/API endpoints were detected.
+- Evidence:
+  - `README.md:6` explicitly states there is no backend and no server-side API endpoint surface.
+  - Static search across `src/`, `tests/`, `README.md`, and `package.json` found no Express/Fastify/Koa/Hono route definitions, no `app.get/post/...`, no `supertest`, and no HTTP server bootstrap.
 
-Evidence:
-- [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:4) states "No backend, no server-side API endpoints".
-- [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:8) and [docker-compose.yml](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/docker-compose.yml:12) show a static Vite preview workflow, not an HTTP API service.
-- Scoped repo search across `src/` and `tests/` found no server framework or route declarations (`express`, `fastify`, `koa`, `app.get`, `app.post`, router definitions).
+### Backend Endpoint Inventory
 
-## API Test Mapping Table
+| Endpoint | Status | Evidence |
+|---|---|---|
+| None detected | N/A | `README.md:6`; no router/server code in `src/` |
+
+### API Test Mapping Table
 
 | Endpoint | Covered | Test Type | Test Files | Evidence |
 |---|---|---|---|---|
-| None detected | N/A | N/A | None | No server-side routes found in source; project is a browser SPA |
+| None detected | N/A | N/A | N/A | No backend route handlers exist to map |
 
 ## API Test Classification
 
-- True No-Mock HTTP API tests: `0`
-- HTTP API tests with mocking: `0`
-- Non-HTTP tests: `58`
-  - Vitest unit/integration/component/flow files: `53` via [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:13) to [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:18)
-  - Playwright browser specs: `5` via [tests/browser/attendance.spec.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/browser/attendance.spec.ts:9), [tests/browser/export-download.spec.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/browser/export-download.spec.ts:45), [tests/browser/multitab.spec.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/browser/multitab.spec.ts:23), [tests/browser/smoke.spec.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/browser/smoke.spec.ts:55), [tests/browser/waveform.spec.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/browser/waveform.spec.ts:44)
+1. True No-Mock HTTP API tests: none found.
+2. HTTP with Mocking API tests: none found.
+3. Non-HTTP tests: all visible tests fall here for API-audit purposes.
+
+Evidence:
+- `tests/browser/smoke.spec.ts`, `tests/browser/export-download.spec.ts`, and `tests/browser/profile-persistence.spec.ts` are real browser tests against the SPA, not backend/API route tests.
+- `tests/flow/primary-flow.test.ts`, test `profile … project … import … edit … marker … playlist … export … report`, explicitly states it is "not a browser UI end-to-end test."
 
 ## Mock Detection
 
-No HTTP-layer mocking was found, because no HTTP API tests exist.
+### Detected Mocking / Overrides
 
-Visible test doubles and fakes used elsewhere:
-- Environment fakes in [tests/setup.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/setup.ts:8), [tests/setup.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/setup.ts:13), [tests/setup.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/setup.ts:56), [tests/setup.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/setup.ts:89), [tests/setup.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/setup.ts:131)
-  - `fake-indexeddb`
-  - custom `BroadcastChannel`
-  - `Blob.arrayBuffer` shim
-  - fake `AudioContext`
-- Spy on worker execution path in [tests/integration/timeline-worker-path.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/integration/timeline-worker-path.test.ts:24)
-  - Mocked item: `poolWorker.executePoolJob`
-  - Test reference: `describe('smartDispatch creates real IndexedDB jobs')`
-- Download-anchor stubs in [tests/integration/export-pipeline.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/integration/export-pipeline.test.ts:131) and [tests/flow/export-download-flow.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/flow/export-download-flow.test.ts:36)
-  - Mocked items: `URL.createObjectURL`, `URL.revokeObjectURL`, `document.createElement('a')`
-  - Test references: `it('downloadCompletedItem triggers a real anchor download'...)` and `it('produces a real downloadable file and reports one completed export'...)`
+| What is mocked or overridden | Where | Classification impact |
+|---|---|---|
+| `BroadcastChannel`, `Blob.arrayBuffer`, `AudioContext` test-environment shims | `tests/setup.ts` | Non-HTTP environment substitution |
+| `App.svelte` constructor is mocked | `tests/unit/main.test.ts`, `describe('main bootstrap')` | Unit/bootstrap test is not no-mock |
+| `poolWorker.executePoolJob` is spied on | `tests/integration/timeline-worker-path.test.ts`, `describe('smartDispatch creates real IndexedDB jobs')` | This integration file is not no-mock for that execution path |
+| `document.createElement` is spied on and anchor click is replaced | `tests/integration/export-pipeline.test.ts`, `it('downloadCompletedItem triggers a real anchor download')` | Partial DOM mocking |
+| `document.createElement` is spied on and anchor click is replaced | `tests/flow/export-download-flow.test.ts`, `it('produces a real downloadable file and reports one completed export')` | Partial DOM mocking |
+
+Assessment:
+- Mocking exists, but it is limited and localized.
+- No HTTP transport mocking was found because no HTTP/API route layer exists.
 
 ## Coverage Summary
 
 - Total endpoints: `0`
 - Endpoints with HTTP tests: `0`
-- Endpoints with true no-mock HTTP tests: `0`
-- HTTP coverage %: `N/A` because no API endpoints exist
-- True API coverage %: `N/A` because no API endpoints exist
+- Endpoints with TRUE no-mock HTTP tests: `0`
+- HTTP coverage %: `N/A`
+- True API coverage %: `N/A`
 
-## Unit Test Summary
+Interpretation:
+- API coverage is not missing; it is not applicable because the project has no backend/API route surface.
+
+## Unit Test Analysis
 
 ### Backend Unit Tests
 
-- Backend unit test files: `None`
-- Backend modules covered: `None`
-- Important backend modules not tested: `Not applicable; no backend modules detected`
+- Backend unit test files: none.
+- Backend modules covered:
+  - controllers: none detected
+  - services: none detected in a backend/server sense
+  - repositories: none detected in a backend/server sense
+  - auth/guards/middleware: none detected
+- Important backend modules NOT tested: none applicable because no backend modules were detected.
 
 ### Frontend Unit Tests
 
-Frontend unit tests: **PRESENT**
+- **Frontend unit tests: PRESENT**
 
-Framework/tool evidence:
-- `Vitest` in [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:13) and [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:34)
-- `@testing-library/svelte` in [package.json](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/package.json:24)
-- jsdom test environment in [vite.config.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/vite.config.ts:31)
+Strict detection evidence:
+- Identifiable frontend test files exist:
+  - `tests/unit/main.test.ts`
+  - `tests/component/App.test.ts`
+  - `tests/component/ProfileGate.test.ts`
+  - `tests/component/Workspace.test.ts`
+  - `tests/browser/smoke.spec.ts`
+- Tests target frontend logic/components:
+  - `tests/component/App.test.ts` renders `../../src/App.svelte`
+  - `tests/component/ProfileGate.test.ts` renders `../../src/lib/components/ProfileGate.svelte`
+  - `tests/unit/main.test.ts` imports `../../src/main.ts`
+  - `tests/browser/smoke.spec.ts` drives visible UI workflow in the browser
+- Frameworks/tools are directly evident:
+  - `vitest` in `package.json`
+  - `@testing-library/svelte` in component tests
+  - `Playwright` in browser specs
+- Tests import or render actual frontend modules/components:
+  - `tests/component/App.test.ts`
+  - `tests/component/ProfileGate.test.ts`
+  - `tests/unit/main.test.ts`
+  - many other component tests under `tests/component/`
 
-Frontend unit/component test files:
-- [tests/component/ProfileGate.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/component/ProfileGate.test.ts:10)
-- [tests/component/ProjectsPanel.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/component/ProjectsPanel.test.ts:10)
-- [tests/component/ConfirmModal.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/component/ConfirmModal.test.ts:11)
+Frontend test files detected:
+- Identifiable test/spec files under `tests/`: `73`
+- `tests/unit`: `12`
+- `tests/integration`: `35`
+- `tests/component`: `16`
+- `tests/flow`: `4`
+- `tests/browser`: `6`
 
-Frontend components/modules covered by direct unit/component tests:
-- `ProfileGate.svelte`
-  - `renders the create-profile heading in create mode`
-  - `shows passphrase validation error when input is too short`
-- `ProjectsPanel.svelte`
-  - `creates a project and shows it in the table`
-  - `shows Open, Archive, and Delete buttons for each project row`
-- `ConfirmModal.svelte`
-  - `renders confirm variant with title, message, and two buttons`
-  - `confirm Confirm button calls resolve(true)`
+Frameworks/tools detected:
+- `Vitest`
+- `@testing-library/svelte`
+- `jsdom`
+- `Playwright`
+- `fake-indexeddb`
 
-Important frontend components/modules not directly unit tested:
-- `App.svelte`
-- `Workspace.svelte`
-- `Sidebar.svelte`
-- `ExportPanel.svelte`
-- `ImportPanel.svelte`
-- `TimelineEditor.svelte`
-- `PlaylistsPanel.svelte`
-- `ReportsPanel.svelte`
-- `PreferencesPanel.svelte`
-- `IntegrationPanel.svelte`
-- `AttendancePanel.svelte`
-- `CohortsPanel.svelte`
-- `ToastHost.svelte`
+Components/modules covered:
+- App shell and bootstrap:
+  - `src/App.svelte` via `tests/component/App.test.ts`
+  - `src/main.ts` via `tests/unit/main.test.ts`
+- Core Svelte components:
+  - `ProfileGate`, `ProjectsPanel`, `Workspace`, `ImportPanel`, `TimelineEditor`, `ExportPanel`, `ReportsPanel`, `PlaylistsPanel`, `Sidebar`, `PreferencesPanel`, `AttendancePanel`, `CohortsPanel`, `IntegrationPanel`, `ConfirmModal`, `ToastHost`
+- Frontend services/business logic:
+  - `profile`, `projects`, `imports`, `edits`, `exports`, `queue`, `reports`, `markers`, `playlists`, `locks`, `snapshots`, `cohorts`, `integration`, `attendance`
+- Frontend support modules:
+  - IndexedDB wrapper, preferences, stores, audio engine/utilities, attendance inference/model helpers
 
-Frontend unit-test verdict:
-- Direct frontend unit/component coverage exists, but it covers only `3` of `15` Svelte components under `src/lib/components/`.
-- This is a **CRITICAL GAP** for a `web` project because most user-facing panels and the application shell lack direct frontend unit/component tests.
+Important frontend components/modules NOT directly tested:
+- `src/app.css` has no direct test evidence.
+- No major primary Svelte UI component gap was found.
 
 ### Cross-Layer Observation
 
-- This repo is frontend-only.
-- Testing is strong at service/in-browser workflow level, but weak at direct component-level breadth.
-- The imbalance is clear: extensive non-HTTP business-logic tests exist, while most UI panels have no dedicated component tests.
-
-## Tests Check
-
-Observed strengths:
-- Success-path coverage is broad for core local workflows:
-  - export pipeline in [tests/integration/export-pipeline.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/integration/export-pipeline.test.ts:53)
-  - primary user flow in [tests/flow/primary-flow.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/flow/primary-flow.test.ts:1)
-  - browser flows in [tests/browser/smoke.spec.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/browser/smoke.spec.ts:55) and [tests/browser/export-download.spec.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/browser/export-download.spec.ts:45)
-- Failure and edge cases are present:
-  - invalid passphrase UI in [tests/component/ProfileGate.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/component/ProfileGate.test.ts:49)
-  - failed render path in [tests/integration/export-pipeline.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/integration/export-pipeline.test.ts:173)
-  - duplicate prevention in [tests/integration/export-duplicate-prevent.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/integration/export-duplicate-prevent.test.ts:1)
-  - offline guarantee in [tests/flow/offline.test.ts](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/tests/flow/offline.test.ts:8)
-- Integration boundaries are exercised through real module interactions, IndexedDB state, workers, and browser automation.
-
-Observed weaknesses:
-- No HTTP/API test surface exists because no backend exists.
-- Most UI surfaces are not covered by direct component tests.
-- Browser tests verify visible behavior, but they do not compensate for missing focused tests on all major panels and shell-level state transitions.
-- [run_tests.sh](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/run_tests.sh:5) performs `npm ci` at test runtime. This is Docker-contained, so it is not a host dependency failure, but it does make test execution less hermetic than a prebuilt test image alone.
+- This is a single-layer web SPA, not a backend/frontend split system.
+- Testing is frontend-heavy by design and correctly aligned with the codebase shape.
 
 ## API Observability Check
 
-- API observability: `N/A`
-- Reason: there are no API endpoint tests and no API endpoints.
+- API observability: not applicable because no API endpoint tests exist.
+- Browser/UI observability is strong:
+  - `tests/browser/smoke.spec.ts`, test `profile -> project -> import -> marker -> export -> reports -> playlist search`, shows concrete user actions and visible outcomes.
+  - `tests/browser/export-download.spec.ts`, test `import -> export -> download updates the report and produces a browser download`, shows input, UI transitions, download event, and report assertions.
+  - `tests/browser/profile-persistence.spec.ts`, test `reload requires unlock, restores the last open project, and supports device reset`, shows persistence/reset behavior through visible UI.
+- Flow-service observability is acceptable but explicitly non-browser:
+  - `tests/flow/primary-flow.test.ts` states it is not a browser UI end-to-end test.
 
-## Test Coverage Score (0-100)
+## Test Quality & Sufficiency
 
-`64/100`
+### Strengths
+
+- Broad and layered frontend coverage:
+  - `12` unit test files
+  - `16` component test files
+  - `35` integration test files
+  - `4` flow test files
+  - `6` browser specs
+- Browser-backed user journeys are materially stronger than before:
+  - `tests/browser/smoke.spec.ts` now covers profile creation, project creation, import, marker creation, export, reports, and playlist workflow.
+  - `tests/browser/export-download.spec.ts` now verifies report updates and a real browser download event.
+  - `tests/browser/profile-persistence.spec.ts` adds reload/unlock/restore/reset coverage.
+- Bootstrap coverage now exists for `src/main.ts`:
+  - `tests/unit/main.test.ts`, tests `mounts App into #app` and `throws when the #app root is missing`.
+- `run_tests.sh` no longer performs `npm ci`; it only invokes the test scripts.
+
+### Weaknesses
+
+- No API/backend route coverage exists because no API/backend exists.
+- Some high-level jsdom tests remain partially mocked:
+  - `tests/integration/export-pipeline.test.ts`, test `downloadCompletedItem triggers a real anchor download`
+  - `tests/flow/export-download-flow.test.ts`, test `produces a real downloadable file and reports one completed export`
+- `tests/integration/timeline-worker-path.test.ts` uses a spy on `executePoolJob`, so that file is not a strict no-mock integration path.
+- Several browser specs still duplicate setup fixture logic instead of fully reusing helpers, which is a maintainability issue but not a coverage failure.
+
+### run_tests.sh Check
+
+- Result: Docker-based test path exists and the runner no longer installs dependencies during execution.
+- Evidence:
+  - `docker-compose.yml:13-21` runs `./run_tests.sh` inside the `test` service.
+  - `run_tests.sh:4-14` runs `test:unit`, `test:integration`, `test:component`, and `test:flow` only.
+
+## End-to-End Expectations
+
+- For a `web` project, real browser/UI coverage is expected.
+- Present evidence:
+  - `tests/browser/smoke.spec.ts`
+  - `tests/browser/export-download.spec.ts`
+  - `tests/browser/profile-persistence.spec.ts`
+  - `tests/browser/waveform.spec.ts`
+  - `tests/browser/multitab.spec.ts`
+  - `tests/browser/attendance.spec.ts`
+- Assessment:
+  - Real browser coverage is now strong enough to materially compensate for the fact that `tests/flow/*.test.ts` are jsdom/service-layer tests rather than browser E2E.
+
+## Tests Check
+
+- Backend endpoint coverage: not applicable; no endpoints exist.
+- Frontend unit tests: present.
+- Frontend component tests: present and broad.
+- Frontend browser tests: present and materially stronger than the prior state.
+- Over-mocking: limited, but still present in selected integration/flow tests.
+- Test depth: strong for a browser-only SPA.
+
+## Test Coverage Score (0–100)
+
+- **92/100**
 
 ## Score Rationale
 
-- Score is not reduced for missing API tests, because there is no backend API surface.
-- Score is reduced materially because direct frontend component coverage is narrow relative to the size of the UI surface.
-- Score is supported by strong service/integration coverage and real-browser workflow coverage.
-- Score is capped because most critical UI panels are only indirectly exercised or not directly tested at all.
+- Positive scoring factors:
+  - No backend/API exists, so missing endpoint tests are not a deduction.
+  - Frontend unit, component, integration, flow, and browser layers are all present.
+  - `src/main.ts` now has direct bootstrap coverage.
+  - Browser coverage now validates deeper, user-visible workflows rather than only shallow smoke checks.
+  - `run_tests.sh` no longer does dependency installation during test execution.
+- Deductions retained:
+  - Some high-level jsdom tests still use DOM spies/mocks.
+  - Some "e2e"/"flow" naming still overstates realism because those files are not browser-driven.
+  - No direct evidence exists for CSS-level behavior or visual regression coverage.
 
 ## Key Gaps
 
-- **CRITICAL GAP:** most Svelte UI panels have no direct unit/component tests.
-- No direct tests for `App.svelte`, `Workspace.svelte`, `Sidebar.svelte`, or most tab panels.
-- Some tests rely on environment fakes and spies, which is acceptable for this frontend repo but limits realism for worker/media/browser APIs.
+- The remaining high-level mocked download assertions in:
+  - `tests/integration/export-pipeline.test.ts`
+  - `tests/flow/export-download-flow.test.ts`
+- `tests/integration/timeline-worker-path.test.ts` still relies on a spy for worker-path confirmation.
+- `src/app.css` has no direct test coverage.
 
 ## Confidence & Assumptions
 
-- Confidence: `high`
+- Confidence: high.
 - Assumptions:
-  - Endpoint inventory is empty because no route/server definitions were found during scoped static inspection.
-  - Browser specs are classified as non-HTTP tests because they exercise the SPA through a static preview server, not API route handlers.
+  - Static inspection only; no code, tests, scripts, containers, or builds were run for this audit.
+  - If a backend/API existed, its route surface would be visible in the repository code inspected.
+  - File counts are based on currently visible `*.test.ts` and `*.spec.ts` files.
 
 # README Audit
 
 ## README Location
 
-- Present at [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:1)
+- `README.md` exists at repo root.
 
 ## Hard Gate Review
 
-Passes:
-- Clean markdown structure with clear sections in [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:1)
-- Startup command present:
-  - `docker-compose up --build` in [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:20)
-- Access method present:
-  - `http://localhost:5173` in [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:25)
-- Verification method present:
-  - explicit step table in [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:50)
-- Environment rules satisfied in the README:
-  - no host-side `npm install`, `pip install`, `apt-get`, or manual DB setup instructions were found
-- Authentication disclosure present:
-  - `No authentication required.` in [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:33)
+### Formatting
+
+- Pass.
+- Evidence:
+  - `README.md` is clearly sectioned and readable.
+
+### Startup Instructions
+
+- Pass for `web`.
+- Evidence:
+  - `README.md:20` includes `docker-compose up --build`.
+
+### Access Method
+
+- Pass.
+- Evidence:
+  - `README.md:25` provides `http://localhost:5173`.
+
+### Verification Method
+
+- Pass.
+- Evidence:
+  - `README.md:52` begins a step-by-step browser verification flow.
+
+### Environment Rules
+
+- Partial concern, but not a hard-gate failure from README content alone.
+- README does not instruct the user to run host-side `npm install`, `pip install`, `apt-get`, or manual DB setup.
+- However, the repository implementation still includes container-side installation steps:
+  - `Dockerfile` runs `npm ci`
+  - `Dockerfile.browser-test` runs `npm ci`
+  - `Dockerfile.browser-test` runs `npx playwright install --with-deps chromium`
+  - `docker-compose.yml:30` runs `npx playwright test` in the browser test container
+
+### Demo Credentials / Authentication
+
+- Pass.
+- Evidence:
+  - `README.md:33` explicitly states `No authentication required.`
+  - `README.md:35` explains there is no backend/server auth surface.
 
 ## High Priority Issues
 
-- None.
+- README test inventory is materially incorrect.
+  - `README.md:86` claims `53 test files`.
+  - Current identifiable `*.test.ts` / `*.spec.ts` count is `73`.
+- README category counts are materially incorrect.
+  - `README.md:115` claims `component/ 3 files`; current component test count is `16`.
+  - `README.md:117` claims `browser/ 5 files`; current browser spec count is `6`.
+  - Current unit test count is `12`, not `11`.
+- README browser-spec inventory is outdated.
+  - `README.md:91-99` describes 5 browser specs.
+  - Current browser specs also include `tests/browser/profile-persistence.spec.ts`.
 
 ## Medium Priority Issues
 
-- The README’s architecture section is only directory-level and does not explain the operational boundaries between IndexedDB, stores, workers, and services. Evidence: [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:117)
-- The README asserts Docker-contained browser tests, but also includes a note that the Playwright container path was "not yet validated at runtime". That weakens confidence in the browser-test instructions even though the static setup exists. Evidence: [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:158), [Dockerfile.browser-test](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/Dockerfile.browser-test:10), [docker-compose.yml](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/docker-compose.yml:30)
+- `README.md:13` says `No other runtime dependencies required.` That wording is too broad given container build/test images still install dependencies.
+- `README.md:156` says host-side commands removed, including `npx playwright install`, but `Dockerfile.browser-test` still performs `npx playwright install --with-deps chromium`. That is container-contained, but the phrasing is imprecise and easy to misread.
+- The "Required Repo Changes for Full Compliance" table is historical/status language, not clean operator documentation. It mixes documentation with self-attestation.
 
 ## Low Priority Issues
 
-- The "Total: 53 test files" statement excludes the `5` browser specs and can be misread as the total for the whole repo unless the reader notices the section split. Evidence: [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:86)
-- The final "Required Repo Changes for Full Compliance" table is process/meta documentation rather than operator-facing project documentation. Evidence: [README.md](C:/Users/kidus/OneDrive/Desktop/TASK-req_8343efd948b0/repo/README.md:151)
+- The README architecture section is acceptable, but it does not reflect the now-expanded browser test coverage.
+- The README test layout should distinguish identifiable test/spec files from helper/support files under `tests/`.
 
 ## Hard Gate Failures
 
-- None.
+- None conclusively identified from README text alone.
 
 ## README Verdict
 
-`PARTIAL PASS`
+- **PARTIAL PASS**
 
-Rationale:
-- The README clears the strict operational gates for a `web` project.
-- The remaining issues are documentation-quality issues, not startup/access/auth hard-gate failures.
+## README Verdict Rationale
+
+- The README passes the primary operational gates for a `web` project:
+  - startup command present
+  - access URL/port present
+  - verification flow present
+  - authentication state explicitly declared
+- It fails documentation accuracy/compliance quality expectations because the testing sections are now substantially outdated relative to the repository state.
+
+## Final Verdicts
+
+- Test Coverage Audit: **PASS**
+- README Audit: **PARTIAL PASS**

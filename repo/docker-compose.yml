@@ -14,17 +14,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cleanwave_test
     environment:
       - NODE_ENV=test
-    entrypoint: ["/bin/sh"]
-    command: ["./run_tests.sh"]
+    # No default command: run_tests.sh (on the host) invokes this service
+    # once per test group, passing the concrete `npm run test:<group>`
+    # command via `docker compose run --rm test sh -c "..."`.
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["echo 'Use run_tests.sh or docker compose run --rm test sh -c \"npm run test:<group>\"'"]
 
   test-browser:
     build:
       context: .
       dockerfile: Dockerfile.browser-test
-    container_name: cleanwave_test_browser
     environment:
       - NODE_ENV=test
-    command: ["bash", "-c", "npm run preview & sleep 3 && npx playwright test"]
+    entrypoint: ["/bin/bash", "-c"]
+    command: ["echo 'Use run_tests.sh or docker compose run --rm test-browser bash -c \"npm run preview & sleep 3 && npx playwright test\"'"]
