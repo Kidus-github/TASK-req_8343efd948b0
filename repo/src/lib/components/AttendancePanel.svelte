@@ -297,8 +297,8 @@
             style="width: 240px; border-radius: 8px; background: #000;"
           />
           <div class="stack" style="gap: 0.3rem;">
-            <label class="label">Subject reference</label>
-            <input bind:value={subjectRef} />
+            <label class="label" for="attendance-subject-ref">Subject reference</label>
+            <input id="attendance-subject-ref" bind:value={subjectRef} />
             <button class="primary" on:click={captureAndMatch} disabled={!cameraGranted}>
               Capture &amp; match
             </button>
@@ -306,8 +306,8 @@
           </div>
         </div>
       {:else}
-        <label class="label">Batch match from image files</label>
-        <input type="file" accept="image/*" multiple on:change={batchMatchFromFile} />
+        <label class="label" for="attendance-batch-files">Batch match from image files</label>
+        <input id="attendance-batch-files" type="file" accept="image/*" multiple on:change={batchMatchFromFile} />
         <p class="hint">Each file becomes a subject reference; the engine ranks enrolled subjects against each image.</p>
       {/if}
     {/if}

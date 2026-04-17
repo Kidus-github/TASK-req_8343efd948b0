@@ -298,8 +298,20 @@
 </div>
 
 {#if drawerOpen}
-  <div class="modal-backdrop" on:click|self={() => (drawerOpen = false)}>
-    <div class="drawer" role="dialog" aria-modal="true" on:click|stopPropagation>
+  <div
+    class="modal-backdrop"
+    role="button"
+    tabindex="-1"
+    aria-label="Close export cart"
+    on:click|self={() => (drawerOpen = false)}
+    on:keydown|self={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        drawerOpen = false;
+      }
+    }}
+  >
+    <div class="drawer" role="dialog" aria-modal="true">
       <div class="row">
         <h3 style="margin: 0;">Export Cart</h3>
         <div class="grow" />

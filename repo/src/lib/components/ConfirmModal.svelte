@@ -52,12 +52,26 @@
     selectValue = '';
     r(value);
   }
+
+  function onBackdropKey(e: KeyboardEvent, close: () => void): void {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      close();
+    }
+  }
 </script>
 
 {#if $activeModal?.kind === 'confirm'}
   {@const opts = $activeModal.opts}
-  <div class="modal-backdrop" role="dialog" aria-modal="true" on:click|self={() => closeConfirm(false)}>
-    <div class="modal">
+  <div
+    class="modal-backdrop"
+    role="button"
+    tabindex="-1"
+    aria-label="Close dialog"
+    on:click|self={() => closeConfirm(false)}
+    on:keydown|self={(e) => onBackdropKey(e, () => closeConfirm(false))}
+  >
+    <div class="modal" role="dialog" aria-modal="true">
       <h3>{opts.title}</h3>
       <p class="muted">{opts.message}</p>
       <div class="row" style="justify-content: flex-end; margin-top: 1rem;">
@@ -75,8 +89,15 @@
 
 {#if $activeModal?.kind === 'prompt'}
   {@const opts = $activeModal.opts}
-  <div class="modal-backdrop" role="dialog" aria-modal="true" on:click|self={() => closePrompt(null)}>
-    <div class="modal">
+  <div
+    class="modal-backdrop"
+    role="button"
+    tabindex="-1"
+    aria-label="Close dialog"
+    on:click|self={() => closePrompt(null)}
+    on:keydown|self={(e) => onBackdropKey(e, () => closePrompt(null))}
+  >
+    <div class="modal" role="dialog" aria-modal="true">
       <h3>{opts.title}</h3>
       {#if opts.message}
         <p class="muted">{opts.message}</p>
@@ -117,8 +138,15 @@
 
 {#if $activeModal?.kind === 'select'}
   {@const opts = $activeModal.opts}
-  <div class="modal-backdrop" role="dialog" aria-modal="true" on:click|self={() => closeSelect(null)}>
-    <div class="modal">
+  <div
+    class="modal-backdrop"
+    role="button"
+    tabindex="-1"
+    aria-label="Close dialog"
+    on:click|self={() => closeSelect(null)}
+    on:keydown|self={(e) => onBackdropKey(e, () => closeSelect(null))}
+  >
+    <div class="modal" role="dialog" aria-modal="true">
       <h3>{opts.title}</h3>
       {#if opts.message}
         <p class="muted">{opts.message}</p>

@@ -68,8 +68,9 @@
       <button on:click={onExport}>Export {entity} CSV</button>
     </div>
 
-    <label class="label" style="margin-top: 0.75rem;">CSV text</label>
+    <label class="label" for="cohorts-csv-text" style="margin-top: 0.75rem;">CSV text</label>
     <textarea
+      id="cohorts-csv-text"
       bind:value={csvText}
       rows="8"
       style="width: 100%; font-family: monospace;"
